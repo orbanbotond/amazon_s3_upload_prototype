@@ -15,7 +15,7 @@ ActiveRecord::Schema.define(version: 20141121155427) do
 
   create_table "users", force: true do |t|
     t.string   "name"
-    t.string   "avatar_url"
+    t.string   "avatar"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "image_processed"

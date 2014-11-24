@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :calculate_direct_post, only: [:new, :presigned_post_arguments]
 
   def presigned_post_arguments
-    s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: 201, acl: :public_read)
     render json: @s3_direct_post.fields.to_json
   end
 
@@ -23,7 +23,6 @@ class UsersController < ApplicationController
 
   # GET /users/new
   def new
-    @s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: 201, acl: :public_read)
     @user = User.new
   end
 
@@ -34,11 +33,10 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.except(:key))
     respond_to do |format|
-      binding.pry
       if @user.save
-        binding.pry
+        @user.process_image(user_params[:key])
         format.html { redirect_to @user, notice: 'User was successfully created.' }
         format.json { render :show, status: :created, location: @user }
       else
@@ -80,6 +78,11 @@ class UsersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
-      params.require(:user).permit(:name, :avatar_url, :key)
+      params.require(:user).permit(:name, :avatar, :key)
     end
+
+    def calculate_direct_post
+      @s3_direct_post = S3_BUCKET.presigned_post(key: "uploads/#{SecureRandom.uuid}/${filename}", success_action_status: 201, acl: :public_read)
+    end
+
 end

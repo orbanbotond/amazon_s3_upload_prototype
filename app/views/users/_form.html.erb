@@ -1,7 +1,11 @@
 <%= form_for(@user, html: { class: "directUpload"}) do |f| %>
   <div class="field">
-    <%= f.label :avatar_url %><br>
-    <%= f.file_field :avatar_url %>
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :avatar %><br>
+    <%= f.file_field :avatar %>
   </div>
   <div class="actions">
     <%= f.submit %>
@@ -9,9 +13,6 @@
 <% end %>
 
 <script>
-
-console.debug('<%= @s3_direct_post.url %>');
-console.debug('<%= @s3_direct_post.fields.to_json.html_safe %>');
 
 $(function() {
   $('.directUpload').find("input:file").each(function(i, elem) {
@@ -60,8 +61,8 @@ $(function() {
         // create hidden field
         var input = $("<input />", { type:'hidden', name: fileInput.attr('name'), value: url })
         form.append(input);
-        var input2 = $("<input />", { type:'hidden', name: "user[key]", value: url })
-        form.append(input2);
+        var key_input = $("<input />", { type:'hidden', name: "user[key]", value: url })
+        form.append(key_input);
       },
       fail: function(e, data) {
         console.debug('failed');
